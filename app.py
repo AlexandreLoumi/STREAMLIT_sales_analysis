@@ -14,7 +14,7 @@ st.set_page_config(layout="wide")
 # Cache data
 @st.cache_data
 def load_data():
-    df = pd.read_csv('./data/dunder_mifflin_sales_realiste.csv')
+    df = pd.read_csv('./data/dunder_mifflin_sales.csv')
     return df
 
 df = load_data()
@@ -60,11 +60,18 @@ tab1.write(df.head(50))
 # ----------------------------
 # KPIs
 
-total_revenue = df['net_revenue'].sum()
-total_orders = df['order_id'].nunique()
-total_salespeople = df['salesperson'].nunique()
-revenue_trend = df.groupby(df['order_date'].dt.to_period('M'))['net_revenue'].sum().reset_index()['net_revenue'].tolist()
-orders_trend = df.groupby(df['order_date'].dt.to_period('M'))['order_id'].nunique().reset_index()['order_id'].tolist()
+years_filter = tab2.multiselect(
+    "Sélectionnez l'année",
+    df['year'].unique()
+)
+
+df_filtered = df if not years_filter else df[df['year'].isin(years_filter)]
+
+total_revenue = df_filtered['net_revenue'].sum()
+total_orders = df_filtered['order_id'].nunique()
+total_salespeople = df_filtered['salesperson'].nunique()
+revenue_trend = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['net_revenue'].sum().reset_index()['net_revenue'].tolist()
+orders_trend = df_filtered.groupby(df_filtered['order_date'].dt.to_period('M'))['order_id'].nunique().reset_index()['order_id'].tolist()
 print(revenue_trend)
 
 col1, col2, col3 = tab2.columns(3)
@@ -78,14 +85,6 @@ with col3:
 
 
 tab2.subheader("Quels commerciaux performent le mieux ?")
-
-years_filter = tab2.multiselect(
-    "Sélectionnez l'année",
-    df['year'].unique()
-)
-
-df_filtered = df if not years_filter else df[df['year'].isin(years_filter)]
-
 
 perf_salesperson = df_filtered.groupby('salesperson').agg({
     'net_revenue': 'sum',
@@ -103,10 +102,10 @@ revenue_fig = px.bar(
     y='net_revenue',
     title="Quels commerciaux rapportent le plus de chiffre d'affaires ?",
     labels={'salesperson': 'Commercial', 'net_revenue': "Chiffre d'affaires"},
-    color = 'color',
-    color_discrete_sequence={
-        True: "#D9D9D9",
-        False: th.SUCCESS,
+    color='color',
+    color_discrete_map={
+        False: "#D9D9D9",
+        True: th.SUCCESS,
     }
 )
 
@@ -125,9 +124,9 @@ quantity_fig = px.bar(
     title="Quels commerciaux vendent le plus de produits ?",
     labels={'salesperson': 'Commercial', 'quantity': 'Quantité'},
     color='color',
-    color_discrete_sequence={
-        True: "#D9D9D9",
-        False: th.SUCCESS,
+    color_discrete_map={
+        False: "#D9D9D9",
+        True: th.SUCCESS,
     }
 )
 
@@ -250,7 +249,8 @@ with col2:
             <div style="color:{th.TEXT}; font-size:16px; line-height:1.6;">
                 La région <strong>{top_region}</strong> affiche le taux de retour le plus élevé, 
                 à <strong>{top_rate}%</strong> — soit <strong>{ecart:.1f} points</strong> au-dessus 
-                de la moyenne nationale ({avg_rate:.1f}%).
+                de la moyenne nationale ({avg_rate:.1f}%). Ce n'est pas beaucoup plus alarmant que les autres régions, mais
+                il faut s'assurer que les causes de retour de chaque région soient bien identifiées et traitées pour éviter une escalade du problème.
             </div>
             <div style="color:{th.TEXT}; font-size:14px; opacity:0.7; margin-top:10px; line-height:1.5;">
                 Recommandation : auditer les causes de retour spécifiques à cette région 
@@ -328,8 +328,8 @@ with col1:
             <div style="color:{th.TEXT}; font-size:14px; opacity:0.7; margin-top:10px; line-height:1.5;">
                 Recommandation : cette région représente un potentiel de croissance inexploité. 
                 Une stratégie d'acquisition ciblée pourrait y générer un fort retour sur investissement. <br>
-                Il faudrait analyser les raisons de cette sous-représentation (concurrence, notoriété, accessibilité) pour élaborer un plan d'action efficace, et
-                vérifier quels commerciaux sont déjà actifs dans cette zone pour attribuer la zone aux meilleurs vendeurs.
+                Il faudrait analyser les raisons de cette sous-représentation (concurrence, notoriété, marché) pour élaborer un plan d'action efficace, et
+                vérifier quels commerciaux sont déjà actifs dans cette zone pour mieux manager les efforts de prospection.
             </div>
         </div>
         """).strip(),
