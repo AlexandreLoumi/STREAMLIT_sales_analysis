@@ -253,7 +253,8 @@ with col2:
                 il faut s'assurer que les causes de retour de chaque région soient bien identifiées et traitées pour éviter une escalade du problème.
             </div>
             <div style="color:{th.TEXT}; font-size:14px; opacity:0.7; margin-top:10px; line-height:1.5;">
-                Recommandation : auditer les causes de retour spécifiques à cette région 
+                Recommandation : auditer les causes de retour de chaque région et concentrer une personne du Customer Care Center
+                pour réduire ce chiffre.
                 (qualité produit, logistique, service client) pour identifier un levier d'amélioration ciblé.
             </div>
         </div>
