@@ -48,7 +48,7 @@ Le CSV source doit contenir les colonnes suivantes :
 | `client_segment` | Segment client |
 | `client_name` | Nom du client |
 | `region` | Région |
-| `is_returned` | Indicateur de retour (0/1 ou bool) |
+| `is_returned` | Indicateur de retour |
 
 ## Auteur
 
